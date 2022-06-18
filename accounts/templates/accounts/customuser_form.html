@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}
+<title>SignUp</title>
+{% endblock title %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static '/css/accounts.css' %}">
+<div class='margin_forms'>
+<form action="" method="post"> {% csrf_token %}
+    {{ form|crispy }}
+    <input class="btn btn-primary" type="submit" value="submit">
+</form>
+</div>
+{% endblock content %}

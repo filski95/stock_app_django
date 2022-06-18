@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}
+
+   <title>LoginView</title>
+{% endblock title %}
+
+{% block content %}
+<br>
+<link rel="stylesheet" href="{% static '/css/accounts.css' %}">
+
+<div class="margin_forms">
+<form action="" method="post"> {% csrf_token %}
+    {{ form|crispy }}
+    <input type="submit">
+</form>
+</div>
+
+{% endblock content %}
+
+

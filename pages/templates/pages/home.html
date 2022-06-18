@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+<link rel="stylesheet" href="{% static '/css/base.css' %}">
+{% block content %}
+
+
+
+{% if request.POST %}
+<div class="margin_forms">
+    <h1 class="middle">{{stock}} - {{output.name}}</h1>
+<table class="table table-bordered border-primary"> 
+    <tr>
+        <th><h3>{{price_}} &#40;{{output.currency}}&#41;</h3></th>
+        <th><h3>{{price_change_}}</h3></th>
+        <th><h3>{{percent_change_}}</h3></th>
+      </tr>          
+    <tr>
+        <td><h5>{{output.price}}</h5></td>
+        <td><h5>{{output.price_change}}</h5></td>
+        <td><h5>{{output.change_percent}}</h5></td>
+      </tr> 
+</table>
+<a class="btn btn-success" href="{% url 'pages:home' %}">Again</a>
+</div>
+{% endif %}
+
+{% if not request.POST %}
+<div class="margin_forms">
+    <form  action="" method="POST">{% csrf_token %}
+        {{form|crispy}}
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <a class="btn btn-success" href="{% url 'pages:home' %}">Refresh</a>
+    </form>
+</div>
+{% endif %}
+
+{% endblock content %}
+
