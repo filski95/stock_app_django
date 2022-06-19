@@ -21,7 +21,7 @@ BasicStockInfo = namedtuple(
 
 def get_requested_stock_basic_data(stock):
     """
-    Method scrapping Yahho fianncial tab.
+    Method scrapping Yahoo fianncial tab.
     Deployment of simple soup (bs4) and scrapping price, price change, % change, currency, name.
     returns namedtupple with all elements as strings.
     """

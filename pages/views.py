@@ -1,5 +1,11 @@
+from typing import Any, Dict
+
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from django.urls import reverse
 from django.views.generic.base import TemplateView
+from django.views.generic.list import ListView
+from stocks_app.models import Stock
 
 from . import pages_utils
 from .forms import StockEntryForm
@@ -14,18 +20,16 @@ class HomePageView(TemplateView):
         context = self.get_context_data()
         if context["form"].is_valid():
             instance = context["form"].cleaned_data
-            stock = instance["stock_abbreviation"]
-            users_selected_stock_details = pages_utils.get_requested_stock_basic_data(stock)
-            print(users_selected_stock_details)
-            # to display what stock data are displayed
-            context["stock"] = stock.upper()
+            stock = instance["stock_abbreviation"].upper()
 
-            #! all attributes returned by get_requested_stock_basic_data are available
-            #! under output.attribute_name in html templates
-            context["output"] = users_selected_stock_details
-            context["price_"] = "Price"  # text only - labels
-            context["price_change_"] = "Price Change"  # text only - labels
-            context["percent_change_"] = "Percent Change"  # text only - labels
+            try:
+                # in case users types in an abbreviation that is not linked to any stock on Yahoo's website
+                context = self.prepare_context(context, stock)
+            except AttributeError:
+                return HttpResponseRedirect(reverse("pages:notfound"))
+
+            if instance["add"] is True:
+                self.add_to_watchlist(request, stock)
 
             return render(request, "pages/home.html", context=context)
         return super(TemplateView, self).render_to_response(context)
@@ -39,3 +43,45 @@ class HomePageView(TemplateView):
         form = StockEntryForm(self.request.POST or None)
         context["form"] = form
         return context
+
+    def prepare_context(self, context, stock):
+        users_selected_stock_details = pages_utils.get_requested_stock_basic_data(stock)
+        # to display what stock's data is displayed
+        context["stock"] = stock.upper()
+
+        # all attributes returned by get_requested_stock_basic_data are available
+        #  under output.attribute_name in html templates
+        context["output"] = users_selected_stock_details
+        context["price_"] = "Price"  # text only - labels
+        context["price_change_"] = "Price Change"  # text only - labels
+        context["percent_change_"] = "Percent Change"  # text only - labels
+        return context
+
+    def add_to_watchlist(request, stock):
+        """
+        add the stock to user's watchlist. If Stock never searched before - create new entry in db, else:
+        create relationship between user and the stock.
+        """
+
+        user = request.user
+        try:
+            st = Stock.objects.get(name=stock)
+            user.stock.add(st)
+        except Stock.DoesNotExist:
+            st = Stock.objects.create(name=stock)
+            user.stock.add(st)
+            # print(user.stock)
+
+
+class Watchlist(ListView):
+    model = Stock
+    template_name: str = "pages/stock_list.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["records"] = Stock.objects.filter(customuser__username=self.request.user)
+        return context
+
+
+class NotFoundView(TemplateView):
+    template_name: str = "pages/not_found.html"

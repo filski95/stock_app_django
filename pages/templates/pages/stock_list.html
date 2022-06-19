@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %} 
+<title> Watchlist</title>
+{% endblock title %}
+
+
+
+{% block content %}
+
+<div class="middle">
+    <ul class="list-group">
+    {% for record in records %}
+        <li class="list-group-item list-group-item-primary">{{record}}</li>
+    {% endfor %}
+
+    </ul>
+</div>
+{% endblock content %}
