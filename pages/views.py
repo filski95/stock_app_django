@@ -1,5 +1,6 @@
 from typing import Any, Dict
 
+from accounts.admin_utils import Trie
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -25,7 +26,14 @@ class HomePageView(TemplateView):
             try:
                 # in case users types in an abbreviation that is not linked to any stock on Yahoo's website
                 context = self.prepare_context(context, stock)
+                # if error not raised then add the searched stock to the dictionary/Trie
+                # Trie.insert_word(stock) #! - add condition to avoid duplicates
+                #! add query to add to db ?
             except AttributeError:
+                t = Trie()
+                alt = t.alternatives(stock)
+                # 'store' suggestions in session and 'forward' along with the redirect
+                request.session["output"] = alt
                 return HttpResponseRedirect(reverse("pages:notfound"))
 
             if instance["add"] is True:
@@ -57,7 +65,7 @@ class HomePageView(TemplateView):
         context["percent_change_"] = "Percent Change"  # text only - labels
         return context
 
-    def add_to_watchlist(request, stock):
+    def add_to_watchlist(self, request, stock):
         """
         add the stock to user's watchlist. If Stock never searched before - create new entry in db, else:
         create relationship between user and the stock.
@@ -70,7 +78,6 @@ class HomePageView(TemplateView):
         except Stock.DoesNotExist:
             st = Stock.objects.create(name=stock)
             user.stock.add(st)
-            # print(user.stock)
 
 
 class Watchlist(ListView):

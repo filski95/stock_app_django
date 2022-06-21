@@ -26,6 +26,11 @@
               <li class="nav-item">
                 <a class="nav-link active" href="{% url 'pages:watchlist' %}">Watchlist</a>
               </li>
+              {% if request.user.is_superuser %}
+              <li class="nav-item">
+                <a class="nav-link active" href="{% url 'accounts:trie' %}">Load Stock Suggestions</a>
+              </li>
+              {% endif %}
              
 
               </li>
