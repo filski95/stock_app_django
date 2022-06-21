@@ -2,4 +2,9 @@ from django.urls import path
 
 from . import views
 
-urlpatterns = [path("", views.StockMainView.as_view(), name="stocks_main")]
+app_name = "stocks"
+
+urlpatterns = [
+    path("watchlist/", views.Watchlist.as_view(), name="watchlist"),
+    path("notfound/", views.NotFoundView.as_view(), name="notfound"),
+]

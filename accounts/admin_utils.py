@@ -1,4 +1,3 @@
-from black import out
 from stocks_app.models import Stock
 
 
@@ -12,20 +11,29 @@ class Trie:
     stocks = Stock.objects.all()
 
     def alternatives(self, word):
+        """
+        provides name suggestions in case of typos. Does not work for cases where first letter is wrong.
+        """
         current_node = self.root
         matched = ""
 
+        # if first letter is wrong counter will be 0 and we can return None rightaaway
+        counter = 0
         for char in word:
             if current_node.letters.get(char):
                 matched += char
                 current_node = current_node.letters.get(char)
+                counter += 1
             else:
                 # if current character isnt found among the current node's letters
                 # collect the suffixes from current char get n of them and output concatenated
                 # with already matched string
-                word = self.collect_all_words(current_node)[:2]  # nb of suggestions can be adjusted.
-                output = [matched + w for w in word]
-                return output
+                if counter != 0:
+                    word = self.collect_all_words(current_node)[:2]  # nb of suggestions can be adjusted.
+                    output = [matched + w for w in word]
+                    return output
+                else:
+                    return None
 
         if "*" not in current_node.letters.keys():
             # if "word" typed in by the user is not a fully fledged word

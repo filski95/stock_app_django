@@ -34,7 +34,7 @@ class HomePageView(TemplateView):
                 alt = t.alternatives(stock)
                 # 'store' suggestions in session and 'forward' along with the redirect
                 request.session["output"] = alt
-                return HttpResponseRedirect(reverse("pages:notfound"))
+                return HttpResponseRedirect(reverse("stocks:notfound"))
 
             if instance["add"] is True:
                 self.add_to_watchlist(request, stock)
@@ -78,17 +78,3 @@ class HomePageView(TemplateView):
         except Stock.DoesNotExist:
             st = Stock.objects.create(name=stock)
             user.stock.add(st)
-
-
-class Watchlist(ListView):
-    model = Stock
-    template_name: str = "pages/stock_list.html"
-
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context["records"] = Stock.objects.filter(customuser__username=self.request.user)
-        return context
-
-
-class NotFoundView(TemplateView):
-    template_name: str = "pages/not_found.html"

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}
+
+{% endblock title %}
+
+
+
+{% block content %}
+<h3 class="middle">YAHOO does not list any stock with such reference </h3>
+    {% comment %} {% if request.session.output %} {% endcomment %}
+        <p class="middle"> Maybe you meant one of the below? 
+        {% for stock in request.session.output  %}</p>
+            <h3 class="middle">{{stock}}</h3>
+        {% endfor %}
+    {% comment %} {% endif %} {% endcomment %}
+
+<p class="middle"><a class="btn btn-primary" href="{% url 'pages:home' %}">Return</a></p>
+{% endblock content %}
+
