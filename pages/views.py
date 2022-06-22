@@ -60,9 +60,9 @@ class HomePageView(TemplateView):
         # all attributes returned by get_requested_stock_basic_data are available
         #  under output.attribute_name in html templates
         context["output"] = users_selected_stock_details
-        context["price_"] = "Price"  # text only - labels
-        context["price_change_"] = "Price Change"  # text only - labels
-        context["percent_change_"] = "Percent Change"  # text only - labels
+        context["price_header"] = "Price"  # text only - labels
+        context["price_change_header"] = "Price Change"  # text only - labels
+        context["percent_change_header"] = "Percent Change"  # text only - labels
         return context
 
     def add_to_watchlist(self, request, stock):

@@ -10,12 +10,24 @@
 
 {% block content %}
 
-<div class="middle">
-    <ul class="list-group">
-    {% for record in records %}
-        <li class="list-group-item list-group-item-primary">{{record}}</li>
-    {% endfor %}
 
-    </ul>
+<div class="margin_forms">
+<table class="table table-bordered border-primary table-warning"> 
+    <tr>
+        <th><h3>{{stock_name_header}}</h3></th>
+        <th><h3>{{price_header}}</h3></th>
+        <th><h3>{{price_change_header}}</h3></th>
+        <th><h3>{{percent_change_header}}</h3></th>
+      </tr>   
+      {% for st_name, stock_details in output.items %}       
+    <tr>
+        <td><h5>{{stock_details.name}}&#40;{{st_name}}&#41;</h5></td>
+        <td><h5>{{stock_details.price}} &#40;{{stock_details.currency}}&#41;</h5></td>
+        <td><h5>{{stock_details.price_change}}</h5></td>
+        <td><h5>{{stock_details.change_percent}}</h5></td>
+        
+      </tr> 
+      {% endfor %}
+</table>
 </div>
 {% endblock content %}
