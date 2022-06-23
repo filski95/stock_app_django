@@ -1,5 +1,5 @@
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView
 
@@ -23,5 +23,4 @@ def add_trie_stock(request):
     t = Trie()
     for word in t.stocks:
         t.insert_word(word.name)
-    print(t.stocks)
     return redirect(reverse("pages:home"))

@@ -5,7 +5,6 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic.base import TemplateView
-from django.views.generic.list import ListView
 from stocks_app.models import Stock
 
 from . import pages_utils
@@ -23,24 +22,25 @@ class HomePageView(TemplateView):
             instance = context["form"].cleaned_data
             stock = instance["stock_abbreviation"].upper()
 
-            try:
-                # in case users types in an abbreviation that is not linked to any stock on Yahoo's website
+            try:  # in case users types in an abbreviation that is not linked to any stock on Yahoo's website
                 context = self.prepare_context(context, stock)
                 # if error not raised then add the searched stock to the dictionary/Trie
                 # Trie.insert_word(stock) #! - add condition to avoid duplicates
                 #! add query to add to db ?
             except AttributeError:
                 t = Trie()
-                alt = t.alternatives(stock)
+                alternative = t.alternatives(stock)
                 # 'store' suggestions in session and 'forward' along with the redirect
-                request.session["output"] = alt
+                request.session["output"] = alternative
                 return HttpResponseRedirect(reverse("stocks:notfound"))
 
             if instance["add"] is True:
-                self.add_to_watchlist(request, stock)
+                add_status = self.add_to_watchlist(request, stock)
+                if add_status is False:
+                    context["Error"] = "You have to log in in order to add stocks to the watchlist"
 
             return render(request, "pages/home.html", context=context)
-        return super(TemplateView, self).render_to_response(context)
+        return super(TemplateView, self).render(context)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -70,11 +70,13 @@ class HomePageView(TemplateView):
         add the stock to user's watchlist. If Stock never searched before - create new entry in db, else:
         create relationship between user and the stock.
         """
-
-        user = request.user
         try:
-            st = Stock.objects.get(name=stock)
-            user.stock.add(st)
-        except Stock.DoesNotExist:
-            st = Stock.objects.create(name=stock)
-            user.stock.add(st)
+            user = request.user
+            try:
+                st = Stock.objects.get(name=stock)
+                user.stock.add(st)
+            except Stock.DoesNotExist:
+                st = Stock.objects.create(name=stock)
+                user.stock.add(st)
+        except AttributeError:
+            return False

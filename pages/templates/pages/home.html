@@ -5,7 +5,6 @@
 {% block content %}
 
 
-
 {% if request.POST %}
 <div class="margin_forms">
     <h1 class="middle">{{stock}} - {{output.name}}</h1>
@@ -23,6 +22,7 @@
 </table>
 <a class="btn btn-primary" href="{% url 'pages:home' %}">Return</a>
 
+<h2 class="middle"> {{Error}}</h2>
 </div>
 {% endif %}
 

@@ -1,6 +1,7 @@
 import concurrent.futures
 from typing import Any, Dict, List, Union
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
@@ -11,7 +12,7 @@ from stocks_app.models import Stock
 # Create your views here.
 
 
-class Watchlist(ListView):
+class Watchlist(LoginRequiredMixin, ListView):
     model = Stock
     template_name: str = "stocks_app/stock_list.html"
 
@@ -53,7 +54,7 @@ class Watchlist(ListView):
 
             # stocks = MANU : FUTURE(BasicStockInfo)
             for abbrev, stock_future in stocks.items():
-                stock_details = stock_future.result(timeout=5)
+                stock_details = stock_future.result(timeout=10)
                 st_name = abbrev
                 context["output"][st_name] = stock_details
 

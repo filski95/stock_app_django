@@ -1,9 +1,12 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
+from stocks_app.models import Stock
 
+from accounts.admin_utils import Trie
 from accounts.forms import CustomUserCreationForm
 
+from . import views
 from .models import CustomUser
 
 
@@ -16,6 +19,10 @@ class TestAccounts(TestCase):
             password="admin",
             age=27,
         )
+
+        cls.stock = Stock.objects.create(name="MANU")
+
+        cls.factory = RequestFactory()
 
     def test_signup_view(self):
         response = self.client.get("/accounts/signup/")
@@ -65,10 +72,21 @@ class TestAccounts(TestCase):
                 "password": "admin",
             },
         )
-        logged_in_user = get_user_model().objects.filter(username="testuser")
 
-        # 302 cuz of redirect
+        self.assertEqual(response.status_code, 302)  # 302 cuz of redirect
+
+    def test_trie_stock(self):
+        response = self.client.get("/accounts/trie/")
+        request = self.factory.get("/accounts/trie/")
+
+        t = Trie()
+        views.add_trie_stock(request)
+        all_stocks = t.collect_all_words()
+
+        suggestion = t.alternatives("M")
+        no_suggestion = t.alternatives("X")
+
+        self.assertEqual(no_suggestion, None)  # check that suggestion system does not yield senseless suggestions
+        self.assertEqual(suggestion, ["MANU"])  # check if sugestion system works
+        self.assertEqual(all_stocks, ["MANU"])  # check if stocks from DB are correctly being added to the app Trie.
         self.assertEqual(response.status_code, 302)
-        # converting to string to compare it literally
-        self.assertEqual(str(*logged_in_user), "testuser")
-        self.assertNotEqual(str(*logged_in_user), "testuser2")
