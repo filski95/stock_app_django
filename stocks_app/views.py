@@ -1,15 +1,20 @@
+import base64
 import concurrent.futures
+import datetime
+import io
+import urllib
 from typing import Any, Dict, List, Union
 
+import matplotlib
+import matplotlib.pyplot as plt
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render
 from django.views.generic.base import TemplateView
+from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from pages import pages_utils
+from pandas_datareader import data
 
 from stocks_app.models import Stock
-
-# Create your views here.
 
 
 class Watchlist(LoginRequiredMixin, ListView):
@@ -48,15 +53,14 @@ class Watchlist(LoginRequiredMixin, ListView):
         with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
 
             stocks = {
-                stock.name: executor.submit(pages_utils.get_requested_stock_basic_data, stock.name)
-                for stock in user_stocks
+                stock: executor.submit(pages_utils.get_requested_stock_basic_data, stock.name) for stock in user_stocks
             }
 
-            # stocks = MANU : FUTURE(BasicStockInfo)
-            for abbrev, stock_future in stocks.items():
+            # stocks = STOCK : FUTURE(BasicStockInfo)
+            for stock_obj, stock_future in stocks.items():
                 stock_details = stock_future.result(timeout=10)
-                st_name = abbrev
-                context["output"][st_name] = stock_details
+
+                context["output"][stock_obj] = stock_details
 
         context["price_header"] = "Price"
         context["price_change_header"] = "Price Change"
@@ -68,3 +72,37 @@ class Watchlist(LoginRequiredMixin, ListView):
 
 class NotFoundView(TemplateView):
     template_name: str = "stocks_app/not_found.html"
+
+
+class StockDetailView(DetailView):
+    model = Stock
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        stock = Stock.objects.get(pk=self.kwargs.get("pk"))
+
+        context["stock"] = self.prepare_figure(stock)
+        return context
+
+    def prepare_figure(self, stock):
+        matplotlib.use("Agg")
+
+        st = data.DataReader(stock.name, start="2017-1-1", end=datetime.date.today(), data_source="yahoo")["Adj Close"]
+
+        st = st.plot(title=f"{stock} Closing price")
+        figure = plt.gcf()
+        figure.set_size_inches(6, 3)
+        figure.legend(
+            [stock.name], loc="upper left", bbox_to_anchor=(0.115, 0.90)
+        )  # place the label in the top left corner
+
+        buf = io.BytesIO()
+        figure.savefig(buf, format="png", transparent=True, quality=100, dpi=200)
+        buf.seek(0)
+
+        figure.clear()  # clear the graph after it was saved as byte obj. Without this line, stocks will get 'stacked up' across views
+        # / treated as one graph in session?
+
+        imsrc = base64.b64encode(buf.read())
+        imuri = "data:image/png;base64,{}".format(urllib.parse.quote(imsrc))
+        return imuri

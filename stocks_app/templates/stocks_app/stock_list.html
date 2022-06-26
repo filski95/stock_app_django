@@ -19,15 +19,18 @@
         <th><h3>{{price_change_header}}</h3></th>
         <th><h3>{{percent_change_header}}</h3></th>
       </tr>   
-      {% for st_name, stock_details in output.items %}       
+      {% for stock_obj, stock_details in output.items %}       
     <tr>
-        <td><h5>{{stock_details.name}}&#40;{{st_name}}&#41;</h5></td>
+        <td><h5>{{stock_details.name}}&#40;<a href="{% url 'stocks:stock_detail' stock_obj.pk %}">{{stock_obj.name}}</a>&#41;</h5></td>
         <td><h5>{{stock_details.price}} &#40;{{stock_details.currency}}&#41;</h5></td>
         <td><h5>{{stock_details.price_change}}</h5></td>
-        <td><h5>{{stock_details.change_percent}}</h5></td>
-        
+        <td><h5>{{stock_details.change_percent}}</h5></td> 
+    
       </tr> 
       {% endfor %}
+      <tr>
+
 </table>
+<h1>{{stock_list.stock.manu}}</h1>
 </div>
 {% endblock content %}
