@@ -17,7 +17,7 @@ class SignUpView(SuccessMessageMixin, CreateView):
 
 def add_trie_stock(request):
     """
-    method creates a StockDictionary that queries all stocks already added to DB and adds them to the Trie
+    method creates a StockDictionary that queries all stocks already added to DB and adds them to the Trie,
     visible on the page for superusers only. [see html template]
     """
     t = Trie()

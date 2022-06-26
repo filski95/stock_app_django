@@ -1,6 +1,8 @@
 from accounts.models import CustomUser
 from django.db import IntegrityError
+from django.db.models.query import QuerySet
 from django.test import TestCase
+from django.urls import reverse
 
 from stocks_app.models import Stock
 
@@ -46,4 +48,24 @@ class TestStocksApp(TestCase):
     def test_stock_model(self):
 
         with self.assertRaises(IntegrityError):
-            new_stock = Stock.objects.create(name="MANU")  # unique constraint - dupplicate names not allowed
+            Stock.objects.create(name="MANU")  # unique constraint - dupplicate names not allowed
+
+    def test_removing_user_stock_connection_watchlist(self):
+        self.client.login(username="testuser", password="admin")
+        self.user.stock.add(self.stock)
+
+        # removal
+        response = self.client.post(reverse("stocks:watchlist"), {"remove_stock_from_your_watchlist": "MANU"})
+        user_stock = Stock.objects.filter(customuser__username="testuser")
+
+        self.assertContains(response, "MANU")
+        self.assertEqual(len(user_stock), 0)
+
+        response_after_manu_removed = self.client.get(reverse("stocks:watchlist"))
+        self.assertNotContains(response_after_manu_removed, "MANU")
+
+    def test_detail_view(self):
+        response = self.client.get(reverse("stocks:stock_detail", args=[1]))  # 1 stock -> ID = 1
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContainsAny(response, ["Manchester United plc", "Return"])

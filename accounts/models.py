@@ -6,7 +6,7 @@ from stocks_app.models import Stock
 
 class CustomUser(AbstractUser):
     age = models.fields.PositiveSmallIntegerField(validators=[MinValueValidator(15), MaxValueValidator(110)])
-    background = models.CharField(max_length=20)
+    background = models.CharField(max_length=20)  # economics, IT, cs, etc
     stock = models.ManyToManyField(Stock, blank=True)
 
     # available fields to creasuperuser

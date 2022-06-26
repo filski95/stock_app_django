@@ -25,8 +25,7 @@ def get_requested_stock_basic_data(stock):
     Deployment of simple soup (bs4) and scrapping price, price change, % change, currency, name.
     returns namedtupple with all elements as strings.
     """
-    #     url_summary = f"https://finance.yahoo.com/quote/{stock}?p={stock}"
-    #     url_profile = f"https://finance.yahoo.com/quote/{stock}/profile?p={stock}"
+
     url_financials = f"https://finance.yahoo.com/quote/{stock}/financials?p={stock}"
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Safari/605.1.15",
