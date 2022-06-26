@@ -24,14 +24,11 @@ class HomePageView(TemplateView):
 
             try:  # in case users types in an abbreviation that is not linked to any stock on Yahoo's website
                 context = self.prepare_context(context, stock)
-                # if error not raised then add the searched stock to the dictionary/Trie
-                # Trie.insert_word(stock) #! - add condition to avoid duplicates
-                #! add query to add to db ?
             except AttributeError:
                 t = Trie()
                 alternative = t.alternatives(stock)
                 # 'store' suggestions in session and 'forward' along with the redirect
-                request.session["output"] = alternative
+                request.session["alternative"] = alternative
                 return HttpResponseRedirect(reverse("stocks:notfound"))
 
             if instance["add"] is True:
@@ -50,6 +47,7 @@ class HomePageView(TemplateView):
         # if no submission - None. If submission - data from the form (post)
         form = StockEntryForm(self.request.POST or None)
         context["form"] = form
+
         return context
 
     def prepare_context(self, context, stock):

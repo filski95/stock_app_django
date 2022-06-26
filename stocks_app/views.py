@@ -7,7 +7,11 @@ from typing import Any, Dict, List, Union
 
 import matplotlib
 import matplotlib.pyplot as plt
+import requests_cache
+import yfinance as yf
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import render
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
@@ -16,20 +20,42 @@ from pandas_datareader import data
 
 from stocks_app.models import Stock
 
+from .forms import RemoveStockWatchlist
+
 
 class Watchlist(LoginRequiredMixin, ListView):
     model = Stock
     template_name: str = "stocks_app/stock_list.html"
 
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        if context["remove_form"].is_valid():
+            instance = context["remove_form"].cleaned_data
+            removed_stock = instance["remove_stock_from_your_watchlist"]
+
+            try:
+                user = request.user
+                removed_stock = Stock.objects.get(name=removed_stock)
+                user.stock.remove(removed_stock)
+            except ObjectDoesNotExist:
+                context["error_msg"] = f"Such stock ({removed_stock}) does not exist"
+
+        return render(request, "stocks_app/stock_list.html", context=context)
+
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        self.object_list = super().get_queryset()  # otherwise error object has no attribute 'object_list'
         context = super().get_context_data(**kwargs)
         user_stocks = Stock.objects.filter(customuser__username=self.request.user)
 
-        context = self.prepare_context(context, user_stocks)
+        context = self.prepare_watchlist_context(context, user_stocks)
+
+        # additional feature added to the context
+        remove_from_wl_form = RemoveStockWatchlist(self.request.POST or None)
+        context["remove_form"] = remove_from_wl_form
 
         return context
 
-    def prepare_context(
+    def prepare_watchlist_context(
         self,
         context: Dict[str, Any],  # Union[str, Dict[Union[str, None], Union[pages_utils.BasicStockInfo, str, None]]]
         user_stocks: List[Stock],
@@ -82,6 +108,7 @@ class StockDetailView(DetailView):
         stock = Stock.objects.get(pk=self.kwargs.get("pk"))
 
         context["stock"] = self.prepare_figure(stock)
+        context["detailed_info"] = self.prepare_detailed_stock_info(stock)
         return context
 
     def prepare_figure(self, stock):
@@ -106,3 +133,17 @@ class StockDetailView(DetailView):
         imsrc = base64.b64encode(buf.read())
         imuri = "data:image/png;base64,{}".format(urllib.parse.quote(imsrc))
         return imuri
+
+    def prepare_detailed_stock_info(self, stock):
+        """
+        using yfinance lib instead of webscrapping specific contents -> lots of features out of the box.
+        seesions created to speed up loading time.
+        """
+        session = requests_cache.CachedSession("yfinance.cache")
+        session.headers[
+            "User-agent"
+        ] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Safari/605.1.15"
+
+        stock_ticker = yf.Ticker(stock.name, session=session)
+
+        return stock_ticker.info["longBusinessSummary"]

@@ -8,6 +8,7 @@
 {% block content %}
 <br>
 <p class="middle"><a class="btn btn-primary" href="{% url 'stocks:watchlist' %}">Return</a></p>
+{{detailed_info}}
 <div class="middle">
     <img src='{{ stock }}'/>
 </div>

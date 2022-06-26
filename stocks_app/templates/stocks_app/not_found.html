@@ -8,7 +8,7 @@
 
 {% block content %}
 <h3 class="middle">YAHOO does not list any stock with such reference </h3>
-    {% if request.session.output %}
+    {% if request.session.alternative %}
         <p class="middle"> Maybe you meant one of the below? 
         {% for stock in request.session.output  %}</p>
             <h3 class="middle">{{stock}}</h3>

@@ -29,8 +29,14 @@
       </tr> 
       {% endfor %}
       <tr>
-
 </table>
-<h1>{{stock_list.stock.manu}}</h1>
+  <div class="margin_forms">
+    <form action="" method="POST"> {% csrf_token %}
+      {{remove_form|crispy}}
+      <button type="submit" class="btn btn-primary">Remove</button>
+      <a class="btn btn-success" href="{% url 'stocks:watchlist' %}">Refresh</a>
+    </form>
+    <h3>{{error_msg}}</h3>
+  </div>
 </div>
 {% endblock content %}
