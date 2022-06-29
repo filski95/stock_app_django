@@ -23,4 +23,5 @@ def add_trie_stock(request):
     t = Trie()
     for word in t.stocks:
         t.insert_word(word.name)
+
     return redirect(reverse("pages:home"))

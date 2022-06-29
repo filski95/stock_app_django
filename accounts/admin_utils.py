@@ -1,12 +1,24 @@
 from stocks_app.models import Stock
 
 
+class SingletonMeta(type):
+
+    _instances: dict["SingletonMeta", "Trie"] = {}
+
+    def __call__(cls, *args, **kwargs):
+
+        if cls not in cls._instances:
+            instance = super().__call__(*args, **kwargs)
+            cls._instances[cls] = instance
+        return cls._instances[cls]
+
+
 class TrieNode:
     def __init__(self) -> None:
         self.letters: dict[str, TrieNode] = {}
 
 
-class Trie:
+class Trie(metaclass=SingletonMeta):
     root = TrieNode()
     stocks = Stock.objects.all()
 
@@ -14,6 +26,7 @@ class Trie:
         """
         provides name suggestions in case of typos. Does not work for cases where first letter is wrong.
         """
+
         current_node = self.root
         matched = ""
 
@@ -31,6 +44,7 @@ class Trie:
                 if counter != 0:
                     word = self.collect_all_words(current_node)[:2]  # nb of suggestions can be adjusted.
                     output = [matched + w for w in word]
+                    print(output)
                     return output
                 else:
                     return None
