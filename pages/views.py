@@ -28,7 +28,6 @@ class HomePageView(TemplateView):
                 t = Trie()
 
                 alternative = t.alternatives(stock)
-                print(f"alaternative {alternative}")
                 # 'store' suggestions in session and 'forward' along with the redirect
                 request.session["alternative"] = alternative
                 return HttpResponseRedirect(reverse("stocks:notfound"))

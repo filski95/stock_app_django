@@ -1,7 +1,7 @@
 from stocks_app.models import Stock
 
 
-class SingletonMeta(type):
+class SingletonMeta(object):
 
     _instances: dict["SingletonMeta", "Trie"] = {}
 
@@ -18,7 +18,7 @@ class TrieNode:
         self.letters: dict[str, TrieNode] = {}
 
 
-class Trie(metaclass=SingletonMeta):
+class Trie(SingletonMeta):
     root = TrieNode()
     stocks = Stock.objects.all()
 
@@ -44,7 +44,6 @@ class Trie(metaclass=SingletonMeta):
                 if counter != 0:
                     word = self.collect_all_words(current_node)[:2]  # nb of suggestions can be adjusted.
                     output = [matched + w for w in word]
-                    print(output)
                     return output
                 else:
                     return None
