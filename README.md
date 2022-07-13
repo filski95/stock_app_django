@@ -14,4 +14,4 @@ If a certain user added a stock, say "MANU", to the watchlist, it is saved to th
 
 If next user types in MANU1 by mistake, or MAN1 etc. they will be provided with a name sugestion.
 
-For the system to work it is necessary to use "Load Stock Suggestion" button on the page -> admin only. This is because the Trie is being created upon running a function and is not stored in db directly (data read off db each call.)
+For the system to work it is necessary to use "Load Stock Suggestion" button on the page -> admin only. This is because the Trie is being created upon running a function and is not stored in db directly (data reads off db each call.)
