@@ -11,7 +11,7 @@ class CustomUser(AbstractUser):
     # related_name -> added so that: 1. stocks API can reference users who have them on watchlists
     # 2. easier lookups in Watchlist view -> customuser__username=self.request.user replaced user = self.request.user [reverse relationship]
 
-    REQUIRED_FIELDS = ["age", "email"]  # available fields to superuser
+    REQUIRED_FIELDS = ["age", "email"]  # available fields to create_superuser
 
     def __str__(self) -> str:
         return self.username
