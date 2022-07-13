@@ -9,4 +9,4 @@ class Stock(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("stock_detail", kwargs={"pk": self.pk})
+        return reverse("stocks:stock_detail", kwargs={"pk": self.pk})  # admin panel: view on site option

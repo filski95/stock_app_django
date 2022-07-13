@@ -45,7 +45,7 @@ class Watchlist(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         self.object_list = super().get_queryset()  # otherwise error object has no attribute 'object_list'
         context = super().get_context_data(**kwargs)
-        user_stocks = Stock.objects.filter(customuser__username=self.request.user)
+        user_stocks = Stock.objects.filter(user=self.request.user)
 
         context = self.prepare_watchlist_context(context, user_stocks)
 
