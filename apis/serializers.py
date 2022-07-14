@@ -13,7 +13,9 @@ class StockSerializer(serializers.ModelSerializer):
 
 class UsersSerializer(serializers.ModelSerializer):
     stock = serializers.StringRelatedField(many=True)  # listing stocks in the user's api under "stock" field
+    # hyperlink to detail view
+    user_link = serializers.HyperlinkedIdentityField(view_name="apis:user_detail", format="html")
 
     class Meta:
         model = CustomUser
-        fields = "__all__"
+        exclude = ["password"]
