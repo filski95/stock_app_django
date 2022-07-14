@@ -20,13 +20,13 @@ class ApiTest(APITestCase):
         # linking a stock with a user - user should show up on the stock api, stock on user
 
     def test_authentication_api_view(self):
-        response = self.client.get(reverse("stock_list"))
+        response = self.client.get(reverse("apis:stock_list"))
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)  # user has to be authenticated.
 
     def test_user_apis_not_admin(self):
         self.client.login(username="testuser", password="admin")
-        response = self.client.get(reverse("users_list"))
+        response = self.client.get(reverse("apis:users_list"))
 
         self.assertEqual(
             response.status_code, status.HTTP_403_FORBIDDEN
@@ -34,7 +34,7 @@ class ApiTest(APITestCase):
 
     def test_stock_list_view_api(self):
         self.client.login(username="testuser", password="admin")
-        response = self.client.get(reverse("stock_list"))
+        response = self.client.get(reverse("apis:stock_list"))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.stock)
@@ -45,7 +45,7 @@ class ApiTest(APITestCase):
     def test_user_list_view_api(self):
         self.client.login(username="admin", password="adminadmin")  # only admins are allowed to view user related APIs
 
-        response = self.client.get(reverse("users_list"))
+        response = self.client.get(reverse("apis:users_list"))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.user)
@@ -54,9 +54,9 @@ class ApiTest(APITestCase):
 
     def test_user_detail_view_api(self):
         self.client.login(username="admin", password="adminadmin")  # only admins are allowed to view user related APIs
-        response = self.client.get(reverse("user_detail", args=[1]))  #  kwargs={"pk": self.user.id}))
+        response = self.client.get(reverse("apis:user_detail", args=[1]))  #  kwargs={"pk": self.user.id}))
         response_user_not_exist = self.client.get(
-            reverse("user_detail", args=[3])
+            reverse("apis:user_detail", args=[3])
         )  # only two users - this should yield 404.
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

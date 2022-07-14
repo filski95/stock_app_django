@@ -158,6 +158,7 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
+# for documentation api/schema .. api/schema/redoc
 SPECTACULAR_SETTINGS = {
     "TITLE": "Stock checker",
     "DESCRIPTION": "An app checking stocks on yahoo",
